@@ -1,0 +1,9 @@
+# Symera
+
+Symera is an Ethereum based re pledge agreement aimed at providing users with higher pledge returns and financial security. Through Symera, users can pledge their pledged ETH again, thereby gaining more liquidity and revenue.
+The core function of Symera is to convert the ETH pledged by users into pledge vouchers, which can be re pledged within the agreement to achieve asset financialization. This re pledge mechanism not only provides users with more liquidity sexual selection, but also provides financial guarantees for DAPPs of off chain data, reducing their capital costs.
+As an innovative re pledge agreement, Symera also introduces a series of unique features and features. This includes:
+1. User operation behavior storage: Through the Danksharing Blob, user operation behavior can be stored in the form of UserOperation, and processed using zk's two-layer network. In this way, the user's privacy is protected while providing a reliable source of data for the protocol.
+2. Resting voucher tokenization: Symera converts Resting vouchers into FT (replaceable tokens), allowing them to flexibly combine and trade. Users can combine Resting vouchers with other assets to achieve a wider range of investment and trading strategies.
+3. Cross AVS communication: Symera natively supports communication with other AVS (applications involving off chain data), facilitating the access and exchange of external data. This provides more data sources for the protocol and broadens the possibilities of application scenarios.
+Symera's goal is to become a highly secure and innovative re pledge agreement on ETH. We believe that Symera will provide users and dapp developers with a better pledging experience and economic benefits, promoting the further development of the Ethereum ecosystem.
