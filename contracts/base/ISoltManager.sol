@@ -30,7 +30,7 @@ interface ISoltManager {
     function depositBeaconChainETH(address staker, uint256 amount) external;
 
     
-    function recordOvercommittedBeaconChainETH(address overcommittedPodOwner, uint256 beaconChainETHStrategyIndex, uint256 amount)
+    function recordOvercommittedBeaconChainETH(address overcommittedPodOwner, uint256 beaconChainETHSoltIndex, uint256 amount)
         external;
 
     
