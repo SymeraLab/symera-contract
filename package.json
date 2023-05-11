@@ -1,0 +1,20 @@
+{
+  "name": "symera-contract",
+  "scripts": {
+    "build": "hardhat compile",
+    "export": "hardhat compile && hardhat export-abi --no-compile && hardhat export-bytecode --no-compile",
+    "test": "hardhat test",
+    "deploy-sepolia": "hardhat run scripts/deploy.js --network sepolia",
+    "redeploy-sepolia": "hardhat run scripts/redeploy.js --network sepolia",
+    "verify": "hardhat run scripts/verify.js --network sepolia"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+    "@openzeppelin/contracts": "^4.8.2",
+    "@openzeppelin/contracts-upgradeable": "^4.8.2",
+    "@openzeppelin/hardhat-upgrades": "^1.22.1",
+    "@solidstate/hardhat-bytecode-exporter": "^1.1.1",
+    "@symblox/hardhat-abi-gen": "^0.2.0",
+    "hardhat-abi-exporter": "^2.10.1"
+  }
+}
