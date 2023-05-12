@@ -12,7 +12,7 @@ interface IPausable {
     function pauserRegistry() external view returns (IPauserRegistry); 
 
     /**
-     * @notice This function is used to pause an EigenLayer/DataLayer contract's functionality.
+     * @notice This function is used to pause an /DataLayer contract's functionality.
      * It is permissioned to the `pauser` address, which is expected to be a low threshold multisig.
      * @param newPausedStatus represents the new value for `_paused` to take, which means it may flip several bits at once.
      * @dev This function can only pause functionality, and thus cannot 'unflip' any bit in `_paused` from 1 to 0.
@@ -25,7 +25,7 @@ interface IPausable {
     function pauseAll() external;
 
     /**
-     * @notice This function is used to unpause an EigenLayer/DataLayercontract's functionality.
+     * @notice This function is used to unpause an Symera/DataLayercontract's functionality.
      * It is permissioned to the `unpauser` address, which is expected to be a high threshold multisig or goverance contract.
      * @param newPausedStatus represents the new value for `_paused` to take, which means it may flip several bits at once.
      * @dev This function can only unpause functionality, and thus cannot 'flip' any bit in `_paused` from 0 to 1.

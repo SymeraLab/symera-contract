@@ -23,7 +23,7 @@ pragma solidity ^0.8.9;
 
 /**
  * @title Library for operations on the BN254 elliptic curve.
- * @author Layr Labs, Inc.
+ * @author Symera, Inc.
  * @notice Contains BN254 parameters, common operations (addition, scalar mul, pairing), and BLS signature functionality.
  */
 library BN254 {

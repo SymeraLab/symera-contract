@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 
 /**
  * @title Library of functions shared across DataLayr.
- * @author Layr Labs, Inc.
+ * @author Symera, Inc.
  */
 library MiddlewareUtils {
     /// @notice Finds the `signatoryRecordHash`, used for fraudproofs.
