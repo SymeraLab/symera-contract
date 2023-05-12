@@ -18,18 +18,24 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 
 module.exports = {
   networks: {
-    goerli: {
-      url: "",
-      accounts: [""]
+    hardhat: {
+      allowUnlimitedContractSize: true
     },
-    sepolia:{
-      url: "",
-      accounts: [""]
-    }
-
+    
   },
   etherscan: {
     apiKey: ""
   },
-  solidity: "0.8.9"
+  paths:{
+    source:"./contracts",
+  },
+  solidity: {
+    version: "0.8.12",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200
+      }
+    }
+  },
 }
