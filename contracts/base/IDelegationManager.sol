@@ -40,7 +40,7 @@ interface IDelegationManager {
     /**
      * @notice Undelegates `staker` from the operator who they are delegated to.
      * @notice Callable only by the SlotManager
-     * @dev Should only ever be called in the event that the `staker` has no active deposits in EigenLayer.
+     * @dev Should only ever be called in the event that the `staker` has no active deposits in Symera.
      */
     function undelegate(address staker) external;
 
@@ -54,13 +54,13 @@ interface IDelegationManager {
     function operatorShares(address operator, ISlot slot) external view returns (uint256);
 
     /**
-     * @notice Increases the `staker`'s delegated shares in `slot` by `shares, typically called when the staker has further deposits into EigenLayer
+     * @notice Increases the `staker`'s delegated shares in `slot` by `shares, typically called when the staker has further deposits into Symera
      * @dev Callable only by the SlotManager
      */
     function increaseDelegatedShares(address staker, ISlot slot, uint256 shares) external;
 
     /**
-     * @notice Decreases the `staker`'s delegated shares in each entry of `strategies` by its respective `shares[i]`, typically called when the staker withdraws from EigenLayer
+     * @notice Decreases the `staker`'s delegated shares in each entry of `strategies` by its respective `shares[i]`, typically called when the staker withdraws from Symera
      * @dev Callable only by the SlotManager
      */
     function decreaseDelegatedShares(

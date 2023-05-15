@@ -1,8 +1,8 @@
-// SPDX-License-Identifier: BUSL-1.1
-pragma solidity =0.8.12;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
 
-import "./ISoltManager.sol";
-import "./ISolt.sol";
+import "./ISlotManager.sol";
+import "./ISlot.sol";
 import "./IDelegationManager.sol";
 import "./IBLSRegistry.sol";
 
@@ -17,17 +17,17 @@ interface IWhitelister {
 
     function getStaker(address operator) external returns (address);
 
-    function depositIntoSolt(
+    function depositIntoSlot(
         address staker,
-        ISolt solt,
+        ISlot slot,
         IERC20 token,
         uint256 amount
     ) external returns (bytes memory);
 
     function queueWithdrawal(
         address staker,
-        uint256[] calldata soltIndexes,
-        ISolt[] calldata solts,
+        uint256[] calldata slotIndexes,
+        ISlot[] calldata slots,
         uint256[] calldata shares,
         address withdrawer,
         bool undelegateIfPossible
@@ -35,7 +35,7 @@ interface IWhitelister {
 
     function completeQueuedWithdrawal(
         address staker,
-        ISoltManager.QueuedWithdrawal calldata queuedWithdrawal,
+        ISlotManager.QueuedWithdrawal calldata queuedWithdrawal,
         IERC20[] calldata tokens,
         uint256 middlewareTimesIndex,
         bool receiveAsTokens
