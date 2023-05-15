@@ -5,6 +5,8 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/interfaces/IERC1271.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "../../base/ISlot.sol";
 import "./SymeraSoltManagerStorage.sol";
 /**
@@ -17,6 +19,11 @@ contract SymeraSlotManager is Initializable, PausableUpgradeable, OwnableUpgrade
         address depositor, IERC20 token, ISlot slot, uint256 shares
     );
 
+    uint256 private ORIGINAL_CHAIN_ID;
+
+    // bytes4(keccak256("isValidSignature(bytes32,bytes)")
+    bytes4 constant internal ERC1271_MAGICVALUE = 0x1626ba7e;
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
@@ -25,6 +32,7 @@ contract SymeraSlotManager is Initializable, PausableUpgradeable, OwnableUpgrade
     function initialize() initializer public {
         __Pausable_init();
         __Ownable_init();
+        ORIGINAL_CHAIN_ID = block.chainid;
     }
 
     function pause() public onlyOwner {
@@ -106,7 +114,40 @@ contract SymeraSlotManager is Initializable, PausableUpgradeable, OwnableUpgrade
     )
         external
         returns (uint256 shares){
+        require(
+            expiry >= block.timestamp,
+            "SlotManager.depositIntoSlotWithSignature: signature expired"
+        );
+        // calculate struct hash, then increment `staker`'s nonce
+        uint256 nonce = nonces[staker];
+        bytes32 structHash = keccak256(abi.encode(DEPOSIT_TYPEHASH, slot, token, amount, nonce, expiry));
+        unchecked {
+            nonces[staker] = nonce + 1;
+        }
 
+        bytes32 digestHash;
+        //if chainid has changed, we must re-compute the domain separator
+        if (block.chainid != ORIGINAL_CHAIN_ID) {
+            bytes32 domain_separator = keccak256(abi.encode(DOMAIN_TYPEHASH, keccak256(bytes("EigenLayer")), block.chainid, address(this)));
+            digestHash = keccak256(abi.encodePacked("\x19\x01", domain_separator, structHash));
+        } else {
+            digestHash = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, structHash));
+        }
+        /**
+         * check validity of signature:
+         * 1) if `staker` is an EOA, then `signature` must be a valid ECSDA signature from `staker`,
+         * indicating their intention for this action
+         * 2) if `staker` is a contract, then `signature` must will be checked according to EIP-1271
+         */
+        if (Address.isContract(staker)) {
+            require(IERC1271(staker).isValidSignature(digestHash, signature) == ERC1271_MAGICVALUE,
+                "SlotManager.depositIntoSlotWithSignature: ERC1271 signature verification failed");
+        } else {
+            require(ECDSA.recover(digestHash, signature) == staker,
+                "SlotManager.depositIntoSlotWithSignature: signature not from staker");
+        }
+
+        shares = _depositIntoSlot(staker, slot, token, amount);
     }
 
 
