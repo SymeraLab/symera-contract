@@ -330,4 +330,20 @@ contract DelegationManager is Initializable, OwnableUpgradeable, Pausable, Deleg
         _delegationReceivedHook(dt, staker, strategies, shares);
     }
 
+    // VIEW FUNCTIONS
+
+    /// @notice Returns 'true' if `staker` *is* actively delegated, and 'false' otherwise.
+    function isDelegated(address staker) public view returns (bool) {
+        return (delegatedTo[staker] != address(0));
+    }
+
+    /// @notice Returns 'true' if `staker` is *not* actively delegated, and 'false' otherwise.
+    function isNotDelegated(address staker) public view returns (bool) {
+        return (delegatedTo[staker] == address(0));
+    }
+
+    /// @notice Returns if an operator can be delegated to, i.e. it has called `registerAsOperator`.
+    function isOperator(address operator) public view returns (bool) {
+        return (address(delegationTerms[operator]) != address(0));
+    }
 }
