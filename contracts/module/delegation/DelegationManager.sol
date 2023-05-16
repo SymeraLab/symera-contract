@@ -195,5 +195,139 @@ contract DelegationManager is Initializable, OwnableUpgradeable, Pausable, Deleg
         }
     }
 
-    
+    // INTERNAL FUNCTIONS
+
+    /** 
+     * @notice Makes a low-level call to `dt.onDelegationReceived(staker, strategies, shares)`, ignoring reverts and with a gas budget 
+     * equal to `LOW_LEVEL_GAS_BUDGET` (a constant defined in this contract).
+     * @dev *If* the low-level call fails, then this function emits the event `OnDelegationReceivedCallFailure(dt, returnData)`, where
+     * `returnData` is *only the first 32 bytes* returned by the call to `dt`.
+     */
+    function _delegationReceivedHook(
+        IDelegationTerms dt,
+        address staker,
+        ISlot[] memory strategies,
+        uint256[] memory shares
+    )
+        internal
+    {
+        /**
+         * We use low-level call functionality here to ensure that an operator cannot maliciously make this function fail in order to prevent undelegation.
+         * In particular, in-line assembly is also used to prevent the copying of uncapped return data which is also a potential DoS vector.
+         */
+        // format calldata
+        bytes memory lowLevelCalldata = abi.encodeWithSelector(IDelegationTerms.onDelegationReceived.selector, staker, strategies, shares);
+        // Prepare memory for low-level call return data. We accept a max return data length of 32 bytes
+        bool success;
+        bytes32[1] memory returnData;
+        // actually make the call
+        assembly {
+            success := call(
+                // gas provided to this context
+                LOW_LEVEL_GAS_BUDGET,
+                // address to call
+                dt,
+                // value in wei for call
+                0,
+                // memory location to copy for calldata
+                add(lowLevelCalldata, 32),
+                // length of memory to copy for calldata
+                mload(lowLevelCalldata),
+                // memory location to copy return data
+                returnData,
+                // byte size of return data to copy to memory
+                32
+            )
+        }
+        // if the call fails, we emit a special event rather than reverting
+        if (!success) {
+            emit OnDelegationReceivedCallFailure(dt, returnData[0]);
+        }
+    }
+
+    /** 
+     * @notice Makes a low-level call to `dt.onDelegationWithdrawn(staker, strategies, shares)`, ignoring reverts and with a gas budget 
+     * equal to `LOW_LEVEL_GAS_BUDGET` (a constant defined in this contract).
+     * @dev *If* the low-level call fails, then this function emits the event `OnDelegationReceivedCallFailure(dt, returnData)`, where
+     * `returnData` is *only the first 32 bytes* returned by the call to `dt`.
+     */
+    function _delegationWithdrawnHook(
+        IDelegationTerms dt,
+        address staker,
+        ISlot[] memory strategies,
+        uint256[] memory shares
+    )
+        internal
+    {
+        /**
+         * We use low-level call functionality here to ensure that an operator cannot maliciously make this function fail in order to prevent undelegation.
+         * In particular, in-line assembly is also used to prevent the copying of uncapped return data which is also a potential DoS vector.
+         */
+        // format calldata
+        bytes memory lowLevelCalldata = abi.encodeWithSelector(IDelegationTerms.onDelegationWithdrawn.selector, staker, strategies, shares);
+        // Prepare memory for low-level call return data. We accept a max return data length of 32 bytes
+        bool success;
+        bytes32[1] memory returnData;
+        // actually make the call
+        assembly {
+            success := call(
+                // gas provided to this context
+                LOW_LEVEL_GAS_BUDGET,
+                // address to call
+                dt,
+                // value in wei for call
+                0,
+                // memory location to copy for calldata
+                add(lowLevelCalldata, 32),
+                // length of memory to copy for calldata
+                mload(lowLevelCalldata),
+                // memory location to copy return data
+                returnData,
+                // byte size of return data to copy to memory
+                32
+            )
+        }
+        // if the call fails, we emit a special event rather than reverting
+        if (!success) {
+            emit OnDelegationWithdrawnCallFailure(dt, returnData[0]);
+        }
+    }
+
+    /**
+     * @notice Internal function implementing the delegation *from* `staker` *to* `operator`.
+     * @param staker The address to delegate *from* -- this address is delegating control of its own assets.
+     * @param operator The address to delegate *to* -- this address is being given power to place the `staker`'s assets at risk on services
+     * @dev Ensures that the operator has registered as a delegate (`address(dt) != address(0)`), verifies that `staker` is not already
+     * delegated, and records the new delegation.
+     */ 
+    function _delegate(address staker, address operator) internal onlyWhenNotPaused(PAUSED_NEW_DELEGATION) {
+        IDelegationTerms dt = delegationTerms[operator];
+        require(
+            address(dt) != address(0), "DelegationManager._delegate: operator has not yet registered as a delegate"
+        );
+
+        require(isNotDelegated(staker), "DelegationManager._delegate: staker has existing delegation");
+        // checks that operator has not been frozen
+        require(!slasher.isFrozen(operator), "DelegationManager._delegate: cannot delegate to a frozen operator");
+
+        // record delegation relation between the staker and operator
+        delegatedTo[staker] = operator;
+
+        // retrieve list of strategies and their shares from slot manager
+        (ISlot[] memory strategies, uint256[] memory shares) = slotManager.getDeposits(staker);
+
+        // add slot shares to delegate's shares
+        uint256 stratsLength = strategies.length;
+        for (uint256 i = 0; i < stratsLength;) {
+            // update the share amounts for each of the operator's strategies
+            operatorShares[operator][strategies[i]] += shares[i];
+            unchecked {
+                ++i;
+            }
+        }
+
+        // call into hook in delegationTerms contract
+        _delegationReceivedHook(dt, staker, strategies, shares);
+    }
+
 }
