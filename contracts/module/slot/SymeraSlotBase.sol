@@ -27,7 +27,7 @@ contract SymeraSlotBase is Initializable, Pausable, ISlot {
     */
     uint96 internal constant MIN_NONZERO_TOTAL_SHARES = 1e9;
 
-    /// @notice EigenLayer's SlotManager contract
+    /// @notice Symera's SlotManager contract
     ISlotManager public immutable slotManager;
 
     /// @notice The underyling token for shares in this Slot
