@@ -28,7 +28,7 @@ contract SymeraSlotBase is Initializable, Pausable, ISlot {
     uint96 internal constant MIN_NONZERO_TOTAL_SHARES = 1e9;
 
     /// @notice Symera's SlotManager contract
-    ISlotManager public immutable slotManager;
+    ISlotManager public slotManager;
 
     /// @notice The underyling token for shares in this Slot
     IERC20 public underlyingToken;
@@ -42,15 +42,12 @@ contract SymeraSlotBase is Initializable, Pausable, ISlot {
         _;
     }
 
-    /// @notice Since this contract is designed to be initializable, the constructor simply sets `slotManager`, the only immutable variable.
-    constructor(ISlotManager _slotManager) {
-        slotManager = _slotManager;
-        _disableInitializers();
-    }
+
 
     /// @notice Sets the `underlyingToken` and `pauserRegistry` for the slot.
-    function initialize(IERC20 _underlyingToken, IPauserRegistry _pauserRegistry) public initializer {
+    function initialize(ISlotManager _slotManager,IERC20 _underlyingToken, IPauserRegistry _pauserRegistry) public initializer {
         underlyingToken = _underlyingToken;
+        slotManager = _slotManager;
         _initializePauser(_pauserRegistry, UNPAUSE_ALL);
     }
 
