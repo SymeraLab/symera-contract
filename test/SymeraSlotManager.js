@@ -26,7 +26,7 @@ const {
       const pauserRegistryToken = await PauserRegistry.deploy(teamMultisig,communityMultisig);
       
       const symeraSlotManagerToken = await SymeraSlotManager.deploy();
-      const symeraSlotBaseToken = await SymeraSlotBase.deploy();
+      const symeraSlotBaseToken = await SymeraSlotBase.deploy(symeraSlotManagerToken,wEthERC20,pauserRegistryToken);
       await symeraSlotManagerToken.deployed();
       await symeraSlotBaseToken.deployed();
       await symeraSlotManagerToken.flipSaleState();
