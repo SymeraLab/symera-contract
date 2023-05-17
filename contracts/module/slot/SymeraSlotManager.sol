@@ -24,10 +24,6 @@ contract SymeraSlotManager is Initializable, PausableUpgradeable, OwnableUpgrade
     // bytes4(keccak256("isValidSignature(bytes32,bytes)")
     bytes4 constant internal ERC1271_MAGICVALUE = 0x1626ba7e;
 
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() {
-        _disableInitializers();
-    }
 
     function initialize() initializer public {
         __Pausable_init();
@@ -153,7 +149,16 @@ contract SymeraSlotManager is Initializable, PausableUpgradeable, OwnableUpgrade
 
 
     function getDeposits(address depositor) external view returns (ISlot[] memory, uint256[] memory){
+        uint256 strategiesLength = stakerSlotList[depositor].length;
+        uint256[] memory shares = new uint256[](strategiesLength);
 
+        for (uint256 i = 0; i < strategiesLength;) {
+            shares[i] = stakerSlotShares[depositor][stakerSlotList[depositor][i]];
+            unchecked {
+                ++i;
+            }
+        }
+        return (stakerSlotList[depositor], shares);
     }
 
     function stakerSlotListLength(address staker) external view returns (uint256){
